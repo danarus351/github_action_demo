@@ -64,7 +64,7 @@ COPY entrypoint.sh /usr/src/app/entrypoint.sh
 CMD ["sh", "-c", "Xvfb :0 -screen 0 1024x768x24 & sleep 2 && DISPLAY=:0 python3 gui_app.py"]
 
 #
-#RUN chmod +x /usr/src/app/entrypoint.sh
+#RUN chmod +x /usr/src/a/pp/entrypoint.sh
 #
 #
 ## Run app.py when the container launches

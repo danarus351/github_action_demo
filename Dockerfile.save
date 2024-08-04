@@ -1,0 +1,107 @@
+# Use an official Python runtime as a parent image
+FROM python:3.9-slim
+
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Copy the current directory contents into the container at /usr/src/app
+COPY . .
+
+# Install any needed packages specified in requirements.txt
+#RUN pip install --no-cache-dir -r requirements.txt
+Given the previous errors related to missing libraries, it is a good idea to include several common dependencies for GUI applications. Here's an updated Dockerfile that includes a broader set of libraries to cover most cases:
+
+```dockerfile
+# Use an official Python runtime as a parent image
+FROM python:3.9-slim
+
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libgl1-mesa-dri \
+    libxcb-xinerama0 \
+    libxkbcommon0 \
+    libegl1-mesa \
+    libsm6 \
+    libxext6 \
+    libxrender1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy the current directory contents into the container at /usr/src/app
+COPY . .
+
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install PyQt6
+RUN pip install PyQt6
+
+# Run app.py when the container launches
+CMD ["python", "app.py"]
+```
+
+### Directory structure:
+```
+.
+├── app.py
+├── Dockerfile
+└── requirements.txt
+```
+
+### `requirements.txt`:
+```text
+PyQt6
+```
+
+### `app.py` (your PyQt6 application):
+```python
+import sys
+from PyQt6.QtWidgets import QApplication, QPushButton, QWidget
+from PyQt6.QtCore import Qt
+
+class FullScreenWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Full Screen App")
+        
+        # Create a button and set its size
+        self.button = QPushButton("Push Me", self)
+        self.button.resize(200, 100)  # Resize the button (width, height)
+        self.button.move(100, 100)    # Position the button (x, y)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_C and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            self.close()  # Close the application
+
+app = QApplication(sys.argv)
+window = FullScreenWindow()
+
+# Make the window full screen
+window.showFullScreen()
+
+window.show()
+app.exec()
+```
+
+### Building and Running the Docker Image
+
+1. **Build the Docker image**:
+   ```sh
+   docker build -t my-gui-app .
+   ```
+
+2. **Run the Docker container**:
+   ```sh
+   docker run -it --rm --name my-running-app my-gui-app
+   ```
+
+This Dockerfile should cover most of the common dependencies needed for running a PyQt6 application in a Docker container. If you encounter any additional missing libraries, they can be added in a similar manner.
+
+# Install PyQt6
+RUN pip install PyQt6
+
+# Run app.py when the container launches
+CMD ["python", "gui_app.py"]

@@ -1,0 +1,9 @@
+version: '2.1'
+services:
+  gui-app:
+    build:  .
+    container_name: 'my-gui-app'
+    privileged: true
+    command: tail -F anything
+
+

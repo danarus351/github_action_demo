@@ -1,0 +1,72 @@
+# Use an official Python runtime as a parent image
+FROM python:3.9-slim
+
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Copy the current directory contents into the container at /usr/src/app
+COPY . .
+
+# Install any needed packages specified in requirements.txt
+#RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libgl1-mesa-dri \
+    libxcb-xinerama0 \
+    libxkbcommon0 \
+    libegl1-mesa \
+    libsm6 \
+    libxext6 \
+    libxrender1 \
+    fontconfig \
+    libglib2.0-0 \
+    dbus \
+    libx11-xcb1 \
+    libxcb-cursor0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxi6 \
+    libxtst6 \
+    libxrandr2 \
+    libfontconfig1 \
+    libfreetype6 \
+    libxcb-shape0 \
+    libxcb-xfixes0 \
+    libxcb-render-util0 \
+    libxcb-render0 \
+    libxkbcommon-x11-0 \
+    libxcb-icccm4 \
+    libxcb-image0 \
+    libxcb-keysyms1 \
+    libxcb-randr0 \
+    libxcb-shm0 \
+    libxcb-util1 \
+    libxcb-xinerama0 \
+    libxcb-xkb1 \
+    libglvnd0 \
+     xserver-xorg \
+    xinit \
+    xvfb \
+    python3-pyqt6 \
+    x11-xserver-utils \
+    xauth \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install PyQt6
+RUN pip install PyQt6
+
+#ENV QT_QPA_PLATFORM=xcb
+#ENV QT_QPA_PLATFORM=offscreen
+#ENV QTWEBENGINE_DISABLE_SANDBOX=1
+
+COPY entrypoint.sh /usr/src/app/entrypoint.sh
+
+CMD ["sh", "-c", "Xvfb :0 -screen 0 1024x768x24 & sleep 2 && DISPLAY=:0 python3 gui_app.py"]
+
+#
+#RUN chmod +x /usr/src/app/entrypoint.sh
+#
+#
+## Run app.py when the container launches
+#ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
+

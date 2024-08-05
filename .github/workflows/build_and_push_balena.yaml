@@ -36,16 +36,37 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-#          |
-#          # Build the Docker image
-#          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-#
-#          # Tag the Docker image
-#          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
-#
-#          # Push the Docker image to ECR
-#          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-#          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-
       - name: Logout from Amazon ECR
         run: docker logout $ECR_REGISTRY
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: wait for ecr scan to complete
+        id: scan
+        run: |
+          REPO_NAME="my-app"
+          IMAGE_TAG="latest"
+          SCAN_STATUS="IN_PROGRESS"
+          while [ "$SCAN_STATUS" == "IN_PROGRESS" ]; do
+            SCAN_STATUS=$(aws ecr describe-image-scan-findings --repository-name $ECR_REPOSITORY --image-id imageTag=$IMAGE_TAG --query 'imageScanStatus.status' --output text)
+            echo "Scan status: $SCAN_STATUS"
+            sleep 30
+          done
+          if [ "$SCAN_STATUS" != "COMPLETE" ]; then
+            echo "Scan failed or did not complete."
+            exit 1
+          fi
+      - name: Deploy to Balena Cloud
+        env:
+          BALENA_API_KEY: ${{ secrets.BALENA_API_KEY }}
+          BALENA_APP_NAME: "my-balena-app"
+        run: |
+          IMAGE_URL
+          curl -X PATCH "https://api.balena-cloud.com/v6/application(\$filter=app_name eq '$BALENA_APP_NAME')" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $BALENA_API_KEY" \
+            --data "{\"build\":{\"service1\":{\"image\":\"$IMAGE_URL\"}}}"
+

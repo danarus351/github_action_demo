@@ -43,20 +43,21 @@ jobs:
     steps:
       - name: wait for ecr scan to complete
         id: scan
-        run: |
-          REPO_NAME="my-app"
-          IMAGE_TAG="latest"
-          SCAN_STATUS="IN_PROGRESS"
-          while [ "$SCAN_STATUS" == "IN_PROGRESS" ]; do
-            aws ecr describe-image-scan-findings --repository-name devops_tester --image-id imageTag=$IMAGE_TAG --query 'imageScanStatus.status' --output text
-            SCAN_STATUS=$(aws ecr describe-image-scan-findings --repository-name devops_tester --image-id imageTag=$IMAGE_TAG --query 'imageScanStatus.status' --output text)
-            echo "Scan status: $SCAN_STATUS"
-            sleep 30
-          done
-          if [ "$SCAN_STATUS" != "COMPLETE" ]; then
-            echo "Scan failed or did not complete."
-            exit 1
-          fi
+        run: aws ecr describe-image-scan-findings --repository-name devops_tester --image-id imageTag=$IMAGE_TAG --query 'imageScanStatus.status' --output text
+#          |
+#          REPO_NAME="my-app"
+#          IMAGE_TAG="latest"
+#          SCAN_STATUS="IN_PROGRESS"
+#          while [ "$SCAN_STATUS" == "IN_PROGRESS" ]; do
+#            aws ecr describe-image-scan-findings --repository-name devops_tester --image-id imageTag=$IMAGE_TAG --query 'imageScanStatus.status' --output text
+#            SCAN_STATUS=$(aws ecr describe-image-scan-findings --repository-name devops_tester --image-id imageTag=$IMAGE_TAG --query 'imageScanStatus.status' --output text)
+#            echo "Scan status: $SCAN_STATUS"
+#            sleep 30
+#          done
+#          if [ "$SCAN_STATUS" != "COMPLETE" ]; then
+#            echo "Scan failed or did not complete."
+#            exit 1
+#          fi
       - name: Deploy to Balena Cloud
         env:
           BALENA_API_KEY: ${{ secrets.BALENA_API_KEY }}

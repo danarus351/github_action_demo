@@ -1,0 +1,36 @@
+name: Test IAM Role Permissions
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  test-permissions:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::881035316704:role/ECR-github
+          aws-region: us-east-1
+
+      - name: Test ECR Get Authorization Token
+        run: |
+          aws ecr get-authorization-token --region us-east-1
+
+      - name: Test ECR Describe Repositories
+        run: |
+          aws ecr describe-repositories --repository-names devops_tester --region us-east-1
+
+      - name: Test ECR Initiate Layer Upload
+        run: |
+          aws ecr initiate-layer-upload --repository-name devops_tester --region us-east-1

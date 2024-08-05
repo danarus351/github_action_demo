@@ -51,7 +51,7 @@ jobs:
           IMAGE_TAG="latest"
           SCAN_STATUS="IN_PROGRESS"
           while [ "$SCAN_STATUS" == "IN_PROGRESS" ]; do
-            SCAN_STATUS=$(aws ecr describe-image-scan-findings --repository-name $ECR_REPOSITORY --image-id imageTag=$IMAGE_TAG --query 'imageScanStatus.status' --output text)
+            SCAN_STATUS=$(aws ecr describe-image-scan-findings --repository-name devops_tester --image-id imageTag=$IMAGE_TAG --query 'imageScanStatus.status' --output text)
             echo "Scan status: $SCAN_STATUS"
             sleep 30
           done

@@ -38,11 +38,11 @@ jobs:
 
       - name: Wait for ECR scan to complete
         run: |
-            aws ecr wait image-scan-complete --repository-name my-app --image-id imageTag=latest
+            aws ecr wait image-scan-complete --repository-name devops_tester --image-id imageTag=latest
           
       - name: Check for High Vulnerabilities
         run: |
-          SCAN_FINDINGS=$(aws ecr describe-image-scan-findings --repository-name my-app --image-id imageTag=latest --query 'imageScanFindings.findings[?severity==`HIGH`]' --output json)
+          SCAN_FINDINGS=$(aws ecr describe-image-scan-findings --repository-name devops_tester --image-id imageTag=latest --query 'imageScanFindings.findings[?severity==`HIGH`]' --output json)
           if [ "$SCAN_FINDINGS" != "[]" ]; then
             echo "High vulnerabilities found:"
             echo "$SCAN_FINDINGS"

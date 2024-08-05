@@ -27,37 +27,49 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-#      - name: Build, tag, and push image to ECR
-#        env:
-#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#          ECR_REPOSITORY: devops_tester
-#          IMAGE_TAG: latest
-#        run: |
-#          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-#          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      - name: Build, tag, and push image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: devops_tester
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Wait for ECR scan to complete
+        run: |
+            aws ecr wait image-scan-complete --repository-name my-app --image-id imageTag=latest
+          
+      - name: Check for High Vulnerabilities
+        run: |
+          SCAN_FINDINGS=$(aws ecr describe-image-scan-findings --repository-name my-app --image-id imageTag=latest --query 'imageScanFindings.findings[?severity==`HIGH`]' --output json)
+          if [ "$SCAN_FINDINGS" != "[]" ]; then
+            echo "High vulnerabilities found:"
+            echo "$SCAN_FINDINGS"
+            exit 1
+          else
+            echo "No high vulnerabilities found."
+          fi
+
 
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
 
     steps:
-      - name: wait for ecr scan to complete
-        id: scan
-        run: echo $(aws ecr describe-image-scan-findings --repository-name devops_tester --image-id imageTag=latest --query 'imageScanStatus.status' --output text)
-#          |
-#          REPO_NAME="my-app"
-#          IMAGE_TAG="latest"
-#          SCAN_STATUS="IN_PROGRESS"
-#          while [ "$SCAN_STATUS" == "IN_PROGRESS" ]; do
-#            aws ecr describe-image-scan-findings --repository-name devops_tester --image-id imageTag=$IMAGE_TAG --query 'imageScanStatus.status' --output text
-#            SCAN_STATUS=$(aws ecr describe-image-scan-findings --repository-name devops_tester --image-id imageTag=$IMAGE_TAG --query 'imageScanStatus.status' --output text)
-#            echo "Scan status: $SCAN_STATUS"
-#            sleep 30
-#          done
-#          if [ "$SCAN_STATUS" != "COMPLETE" ]; then
-#            echo "Scan failed or did not complete."
-#            exit 1
-#          fi
+#    - name: Scan Docker image
+#        id: docker-scan
+#        uses: alexjurkiewicz/ecr-scan-image@v1.7.1
+#        with:
+#          repository: myorg/myimage
+#          tag: ${{ steps.docker-build.outputs.tag }}
+#          # fail_threshold: medium
+#          # ignore_list: |
+#          #   CVE-2014-7654321
+#          #   CVE-2014-456132
+#          # Access scan results in later steps
+#          - run: echo "${{ steps.docker-scan.outputs.total }} total vulnerabilities."
+
       - name: Deploy to Balena Cloud
         env:
           BALENA_API_KEY: ${{ secrets.BALENA_API_KEY }}

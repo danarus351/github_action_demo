@@ -43,7 +43,7 @@ jobs:
     steps:
       - name: wait for ecr scan to complete
         id: scan
-        run: echo $(aws ecr describe-image-scan-findings --repository-name devops_tester --image-id imageTag=$IMAGE_TAG --query 'imageScanStatus.status' --output text)
+        run: echo $(aws ecr describe-image-scan-findings --repository-name devops_tester --image-id imageTag=latest --query 'imageScanStatus.status' --output text)
 #          |
 #          REPO_NAME="my-app"
 #          IMAGE_TAG="latest"

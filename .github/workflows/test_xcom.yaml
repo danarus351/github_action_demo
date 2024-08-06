@@ -1,4 +1,4 @@
-name: Test IAM Role Permissions
+name: Test xcom
 
 on:
   push:

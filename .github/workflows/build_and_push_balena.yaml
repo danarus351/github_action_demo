@@ -56,8 +56,8 @@ jobs:
           fi
       - name: Publish veriable to second
         run: |
-          echo "{ECR_REGISTRY}={$ECR_REGISTRY}"  >> $GITHUB_OUTPUT
-          echo "{ECR_REPOSITORY}"={$ECR_REPOSITORY}" >> $GITHUB_OUTPUT
+          echo "ECR_REGISTRY=$ECR_REGISTRY"  >> $GITHUB_OUTPUT
+          echo "ECR_REPOSITORY=$ECR_REPOSITORY" >> $GITHUB_OUTPUT
 
 
   deploy:

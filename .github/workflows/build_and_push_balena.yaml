@@ -37,7 +37,7 @@ jobs:
           ECR_REPOSITORY: devops_tester
           IMAGE_TAG: latest
         run: |
-          echo "$ECR_REPOSITORY"
+          echo "$ECR_REGISTRY"
           echo "ECR_REGISTRY=$ECR_REGISTRY" >> $GITHUB_OUTPUT
           echo "ECR_REPOSITORY=$ECR_REPOSITORY" >> $GITHUB_OUTPUT
 

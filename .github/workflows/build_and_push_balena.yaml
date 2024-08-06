@@ -39,7 +39,7 @@ jobs:
         run: |
           echo "$ECR_REGISTRY"
           echo "ECR_REGISTRY=$ECR_REGISTRY" >> $GITHUB_OUTPUT
-          echo "ECR_REPOSITORY=$ECR_REPOSITORY" >> $GITHUB_OUTPUT
+#          echo "ECR_REPOSITORY=$ECR_REPOSITORY" >> $GITHUB_OUTPUT
           
         
 

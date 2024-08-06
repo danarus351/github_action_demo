@@ -9,8 +9,8 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     outputs:
-      ECR_REPOSITORY: ${{steps.set_outputs.outputs.ECR_REPOSITORY}}
-      ECR_REGISTRY: ${{steps.set_outputs.outputs.ECR_REGISTRY }}
+      ECR_REPOSITORY: ${{steps.publish_ecr.outputs.ECR_REPOSITORY}}
+      ECR_REGISTRY: ${{steps.publish_ecr.outputs.ECR_REGISTRY }}
     permissions:
       id-token: write
       contents: read
@@ -58,6 +58,7 @@ jobs:
 #            echo "No high vulnerabilities found."
 #          fi
       - name: Publish veriable to second
+        id: publish_vars
         run: |
           echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}" >> $GITHUB_OUTPUT
           echo "ECR_REPOSITORY=devops_tester" >> $GITHUB_OUTPUT

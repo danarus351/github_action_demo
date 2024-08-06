@@ -59,8 +59,8 @@ jobs:
 #          fi
       - name: Publish veriable to second
         run: |
-          echo "ECR_REGISTRY = ${{ steps.login-ecr.outputs.registry }}"  >> $GITHUB_OUTPUT
-          echo "ECR_REPOSITORY= ${{ steps.publish_ecr.env.ECR_REPOSITORY }}" >> $GITHUB_OUTPUT
+          echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}" >> $GITHUB_OUTPUT
+          echo "ECR_REPOSITORY=devops_tester" >> $GITHUB_OUTPUT
 
 
   deploy:
@@ -72,8 +72,8 @@ jobs:
         run: docker ps
       - name: test var from build
         run: |
-          echo "${{ needs.build-and-push.outputs.ECR_REPOSITORY }}"
-          echo "${{ needs.build-and-push.outputs.ECR_REGISTRY }}"
+          echo "ECR_REPOSITORY=${{ needs.build-and-push.outputs.ECR_REPOSITORY }}"
+          echo "ECR_REGISTRY=${{ needs.build-and-push.outputs.ECR_REGISTRY }}"
 
 
 

@@ -68,16 +68,15 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
 
-
     steps:
       - env:
           ECR_REPOSITORY: ${{ needs.build-and-push.outputs.ECR_REPOSITORY }}
           ECR_REGISTRY: ${{ needs.build-and-push.outputs.ECR_REGISTRY }}
+        run: |
+            echo "$ECR_REPOSITORY/ $ECR_REGISTRY"
       - name: list docker
         run: docker ps
-      - name: test var from build
-        run: |
-          echo "$ECR_REPOSITORY/ $ECR_REGISTRY"
+
 
 
 

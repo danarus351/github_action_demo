@@ -60,13 +60,6 @@ jobs:
 #          else
 #            echo "No high vulnerabilities found."
 #          fi
-      - name: Publish veriable to second
-        id: publish_vars
-        run: |
-          echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}" >> $GITHUB_OUTPUT
-          echo "ECR_REPOSITORY=devops_tester" >> $GITHUB_OUTPUT
-
-
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest

@@ -39,7 +39,7 @@ jobs:
         run: |
           echo "$ECR_REGISTRY"
           echo "ECR_REGISTRY=$ECR_REGISTRY" >> $GITHUB_OUTPUT
-#          echo "ECR_REPOSITORY=$ECR_REPOSITORY" >> $GITHUB_OUTPUT
+          echo "ECR_REPOSITORY=$ECR_REPOSITORY" >> $GITHUB_OUTPUT
           
         
 
@@ -67,13 +67,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set environment variables
+      - env:
+#          ECR_REPOSITORY: ${{ needs.build-and-push.outputs.ECR_REPOSITORY }}
+          ECR_REGISTRY:   ${{ needs.build-and-push.outputs.ECR_REGISTRY }}
         run: |
-          echo "ECR_REPOSITORY=${{ needs.build-and-push.outputs.ECR_REPOSITORY }}"
-          echo "ECR_REGISTRY=${{ needs.build-and-push.outputs.ECR_REGISTRY }}"
-        env:
-          ECR_REPOSITORY: ${{ needs.build-and-push.outputs.ECR_REPOSITORY }}
-          ECR_REGISTRY: ${{ needs.build-and-push.outputs.ECR_REGISTRY }}
+            echo "$ECR_REGISTRY"
+
+      - name: list docker
+        run: docker ps
+
 
 
 

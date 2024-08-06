@@ -51,6 +51,11 @@ jobs:
           else
             echo "No high vulnerabilities found."
           fi
+      - name: Publish veriable to second
+        run: |
+         echo " ::set-output name=ECR_REGISTRY::$ECR_REGISTRY"
+         echo " ::set-output name=ECR_REPOSITORY::$ECR_REPOSITORY"
+          
 
 
   deploy:
@@ -58,27 +63,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-#    - name: Scan Docker image
-#        id: docker-scan
-#        uses: alexjurkiewicz/ecr-scan-image@v1.7.1
-#        with:
-#          repository: myorg/myimage
-#          tag: ${{ steps.docker-build.outputs.tag }}
-#          # fail_threshold: medium
-#          # ignore_list: |
-#          #   CVE-2014-7654321
-#          #   CVE-2014-456132
-#          # Access scan results in later steps
-#          - run: echo "${{ steps.docker-scan.outputs.total }} total vulnerabilities."
-
-      - name: Deploy to Balena Cloud
-        env:
-          BALENA_API_KEY: ${{ secrets.BALENA_API_KEY }}
-          BALENA_APP_NAME: "my-balena-app"
+      - name: list docker
+        run: docker ps
+      - name: test var from build
         run: |
-          IMAGE_URL
-          curl -X PATCH "https://api.balena-cloud.com/v6/application(\$filter=app_name eq '$BALENA_APP_NAME')" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $BALENA_API_KEY" \
-            --data "{\"build\":{\"service1\":{\"image\":\"$IMAGE_URL\"}}}"
+          echo ${{ needs.build-and-push.outputs.ECR_REPOSITORY }}
+          echo ${{ needs.build-and-push.outputs.ECR_REGISTRY }}
+
+
+
+#      - name: Deploy to Balena Cloud
+#        env:
+#          BALENA_API_KEY: ${{ secrets.BALENA_API_KEY }}
+#          BALENA_APP_NAME: "my-balena-app"
+#        run: |
+#          curl -X PATCH "https://api.balena-cloud.com/v6/application(\$filter=app_name eq '$BALENA_APP_NAME')" \
+#            -H "Content-Type: application/json" \
+#            -H "Authorization: Bearer $BALENA_API_KEY" \
+#            --data "{\"build\":{\"service1\":{\"image\":\"$IMAGE_URL\"}}}"
 

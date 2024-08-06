@@ -60,7 +60,7 @@ jobs:
       - name: Publish veriable to second
         run: |
           echo "ECR_REGISTRY = ${{ steps.login-ecr.outputs.registry }}"  >> $GITHUB_OUTPUT
-          echo "ECR_REPOSITOR Y= ${{ steps.publish_ecr.env.ECR_REPOSITORY }}" >> $GITHUB_OUTPUT
+          echo "ECR_REPOSITORY= ${{ steps.publish_ecr.env.ECR_REPOSITORY }}" >> $GITHUB_OUTPUT
 
 
   deploy:

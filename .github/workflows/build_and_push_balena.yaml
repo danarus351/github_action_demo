@@ -8,6 +8,9 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    outputs:
+      ECR_REPOSITORY: ${{steps.set_outputs.outputs.ECR_REPOSITORY}}
+      ECR_REGISTRY: ${{steps.set_outputs.outputs.ECR_REGISTRY }}
     permissions:
       id-token: write
       contents: read
@@ -53,9 +56,8 @@ jobs:
           fi
       - name: Publish veriable to second
         run: |
-         echo " ::set-output name=ECR_REGISTRY::$ECR_REGISTRY"
-         echo " ::set-output name=ECR_REPOSITORY::$ECR_REPOSITORY"
-          
+          echo "{ECR_REGISTRY}={$ECR_REGISTRY}"  >> $GITHUB_OUTPUT
+          echo "{ECR_REPOSITORY}"={$ECR_REPOSITORY}" >> $GITHUB_OUTPUT
 
 
   deploy:

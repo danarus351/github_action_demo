@@ -30,20 +30,23 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-#      - name: Build, tag, and push image to ECR
-#        env:
-#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#          ECR_REPOSITORY: devops_tester
-#          IMAGE_TAG: latest
+      - name: Build, tag, and push image to ECR
+        id: publish_ecr
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: devops_tester
+          IMAGE_TAG: latest
+        run: echo "blah"
+
 #        run: |
 #          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
 #          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
+#
 #      - name: Wait for ECR scan to complete
 #        run: |
 #            sleep 30
 #            aws ecr wait image-scan-complete --repository-name devops_tester --image-id imageTag=latest
-
+#
 #      - name: Check for High Vulnerabilities
 #        run: |
 #         SCAN_FINDINGS=$(aws ecr describe-image-scan-findings --repository-name devops_tester --image-id imageTag=latest --query "imageScanFindings.findingSeverityCounts.CRITICAL" --output json)
@@ -56,8 +59,8 @@ jobs:
 #          fi
       - name: Publish veriable to second
         run: |
-          echo "ECR_REGISTRY=$ECR_REGISTRY"  >> $GITHUB_OUTPUT
-          echo "ECR_REPOSITORY=$ECR_REPOSITORY" >> $GITHUB_OUTPUT
+          echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}"  >> $GITHUB_OUTPUT
+          echo "ECR_REPOSITORY=${{ env.ECR_REPOSITORY }}" >> $GITHUB_OUTPUT
 
 
   deploy:

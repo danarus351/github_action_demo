@@ -9,8 +9,8 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     outputs:
-      ECR_REPOSITORY: ${{ steps.publish_ecr.outputs.ECR_REPOSITORY }}
-      ECR_REGISTRY:   ${{ steps.publish_ecr.outputs.ECR_REGISTRY }}
+      ecr_registery: ${{ steps.login-ecr.outputs.registry }}
+      ecr_repository: ${{ steps.publish_ecr.ECR_REPOSITORY }}
     permissions:
       id-token: write
       contents: read
@@ -23,7 +23,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::881035316704:role/ECR-github
+          role-to-assume:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Log in to Amazon ECR
@@ -36,10 +36,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: devops_tester
           IMAGE_TAG: latest
-        run: |
-          echo "$ECR_REGISTRY"
-          echo "ECR_REGISTRY=$ECR_REGISTRY" >> $GITHUB_OUTPUT
-#          echo "ECR_REPOSITORY=$ECR_REPOSITORY" >> $GITHUB_OUTPUT
+        run: echo "ecr_repository=$ECR_REPOSITORY" >> "$GITHUB_OUTPUT"
           
         
 
@@ -63,15 +60,14 @@ jobs:
 #            echo "No high vulnerabilities found."
 #          fi
   deploy:
-    needs: build-and-push
     runs-on: ubuntu-latest
-
+    needs: build-and-push
     steps:
       - env:
-#          ECR_REPOSITORY: ${{ needs.build-and-push.outputs.ECR_REPOSITORY }}
-          ECR_REGISTRY:   ${{ needs.build-and-push.outputs.ECR_REGISTRY }}
+          repo: ${{ needs.build-and-push.outputs.ecr_registery }}
+          registry: ${{ needs.build-and-push.outputs.ecr_registery }}
         run: |
-            echo "$ECR_REGISTRY"
+            echo "$repo / $registry"
 
       - name: list docker
         run: docker ps

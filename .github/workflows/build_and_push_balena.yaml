@@ -8,9 +8,6 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    outputs:
-      ecr_registery: ${{ steps.login-ecr.outputs.registry }}
-      ecr_repository: ${{ steps.publish_ecr.ECR_REPOSITORY }}
     permissions:
       id-token: write
       contents: read
@@ -37,9 +34,6 @@ jobs:
           ECR_REPOSITORY: devops_tester
           IMAGE_TAG: latest
         run:  |
-          echo "reg: $ECR_REGISTRY"
-          echo "ecr_repository=$ECR_REGISTRY" >> "$GITHUB_OUTPUT"
-        
 
 #        run: |
 #          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
@@ -65,8 +59,8 @@ jobs:
     needs: build-and-push
     steps:
       - env:
-          repo: ${{ needs.build-and-push.outputs.ecr_registery }}
-          registry: ${{ needs.build-and-push.outputs.ecr_registery }}
+          repo: devops_tester
+          registry: ${{ secrets.ECR_REGISTRY }}
         run: |
             echo "$repo / $registry"
 

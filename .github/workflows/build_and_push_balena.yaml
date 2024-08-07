@@ -33,47 +33,56 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: devops_tester
           IMAGE_TAG: latest
-        run:  |
-
-#        run: |
-#          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-#          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-#
-#      - name: Wait for ECR scan to complete
-#        run: |
-#            sleep 30
-#            aws ecr wait image-scan-complete --repository-name devops_tester --image-id imageTag=latest
-#
-#      - name: Check for High Vulnerabilities
-#        run: |
-#         SCAN_FINDINGS=$(aws ecr describe-image-scan-findings --repository-name devops_tester --image-id imageTag=latest --query "imageScanFindings.findingSeverityCounts.CRITICAL" --output json)
-#          if [ "$SCAN_FINDINGS" != "null" ]; then
-#            echo "Critical vulnerabilities found:"
-#            echo "$SCAN_FINDINGS"
-#            exit 1
-#          else
-#            echo "No high vulnerabilities found."
-#          fi
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build-and-push
-    steps:
-      - env:
-          repo: devops_tester
-          registry: ${{ secrets.ECR_REGISTRY }}
         run: |
-            echo "$repo / $registry"
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: list docker
-        run: docker ps
+      - name: Wait for ECR scan to complete
+        run: |
+            sleep 30
+            aws ecr wait image-scan-complete --repository-name devops_tester --image-id imageTag=latest
+
+      - name: Check for High Vulnerabilities
+        run: |
+         SCAN_FINDINGS=$(aws ecr describe-image-scan-findings --repository-name devops_tester --image-id imageTag=latest --query "imageScanFindings.findingSeverityCounts.CRITICAL" --output json)
+          if [ "$SCAN_FINDINGS" != "null" ]; then
+            echo "Critical vulnerabilities found:"
+            echo "$SCAN_FINDINGS"
+            exit 1
+          else
+            echo "No high vulnerabilities found."
+          fi
+
+      - name: Deploy to Balina
+        id: deploy_balena
+        uses: balena-io/deploy-to-balena-action@master
+        with:
+          balena_token: ${{ secrets.BALENA_TOKEN }}
+          fleet: g_dan_arus/o2-testing
+
+      - name: Log release ID built
+        run: echo "Built release ID ${{ steps.deploy_balena.outputs.release_id }}"
 
 
-
-
+#  deploy:
+#    runs-on: ubuntu-latest
+#    needs: build-and-push
+#    steps:
+#      - env:
+#          repo: devops_tester
+#          registry: ${{ secrets.ECR_REGISTRY }}
+#        run: |
+#            echo "$repo / $registry"
+#
+#      - name: list docker
+#        run: docker ps
+#
 #      - name: Deploy to Balena Cloud
 #        env:
 #          BALENA_API_KEY: ${{ secrets.BALENA_API_KEY }}
 #          BALENA_APP_NAME: "my-balena-app"
+#          repo: devops_tester
+#          registry: ${{ secrets.ECR_REGISTRY }}
 #        run: |
 #          curl -X PATCH "https://api.balena-cloud.com/v6/application(\$filter=app_name eq '$BALENA_APP_NAME')" \
 #            -H "Content-Type: application/json" \
